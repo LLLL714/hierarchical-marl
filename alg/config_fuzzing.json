@@ -1,0 +1,294 @@
+{
+    "main": {
+        "N_seeds": 1,
+        "seed": 12345,
+        "dir_name": "fuzzing_hsd",
+        "dir_idx_start": 1,
+        "model_name": "fuzzing_model.ckpt",
+        "render": false,
+        "summarize": true,
+        "alg_name": "fuzzing_hsd",
+        "save_period": 1000,
+        "max_to_keep": 50,
+        "save_threshold": 0.7,
+        "N_test": 100,
+        "test_filename": "fuzzing_test.csv",
+        "measure": true
+    },
+    "alg": {
+        "N_train": 10000,
+        "N_eval": 10,
+        "period": 100,
+        "epsilon_start": 0.5,
+        "epsilon_end": 0.05,
+        "epsilon_div": 1000,
+        "buffer_size": 50000,
+        "lr_field": 1e-4,
+        "lr_mutation": 1e-4,
+        "lr_decoder": 1e-4,
+        "gamma": 0.99,
+        "tau": 0.01,
+        "batch_size": 128,
+        "pretrain_episodes": 50,
+        "steps_per_train": 5
+    },
+    "h_params": {
+        "field_selection_steps": 20,
+        "N_fields_start": 4,
+        "curriculum_threshold": 0.85,
+        "alpha_start": 1.0,
+        "alpha_end": 0.3,
+        "alpha_step": 0.01,
+        "alpha_threshold": 0.6,
+        "N_batch_decoder": 500,
+        "traj_skip": 2,
+        "obs_truncate_length": null,
+        "use_mamba_features": true,
+        "exploit_probability": 0.9,
+        "field_importance_lr": 0.1
+    },
+    "fuzzing_params": {
+        "protocol_fields": [
+            {
+                "name": "header",
+                "type": "bytes",
+                "min_length": 1,
+                "max_length": 64,
+                "importance_weight": 1.0,
+                "mutation_priority": "high"
+            },
+            {
+                "name": "payload",
+                "type": "bytes", 
+                "min_length": 0,
+                "max_length": 1500,
+                "importance_weight": 0.8,
+                "mutation_priority": "medium"
+            },
+            {
+                "name": "length_field",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 65535,
+                "importance_weight": 0.9,
+                "mutation_priority": "high"
+            },
+            {
+                "name": "type_field",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 255,
+                "importance_weight": 0.7,
+                "mutation_priority": "medium"
+            },
+            {
+                "name": "flags",
+                "type": "bitfield",
+                "num_bits": 8,
+                "importance_weight": 0.6,
+                "mutation_priority": "low"
+            },
+            {
+                "name": "checksum",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 4294967295,
+                "importance_weight": 0.5,
+                "mutation_priority": "low"
+            },
+            {
+                "name": "sequence_number",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 4294967295,
+                "importance_weight": 0.4,
+                "mutation_priority": "low"
+            },
+            {
+                "name": "options",
+                "type": "bytes",
+                "min_length": 0,
+                "max_length": 40,
+                "importance_weight": 0.3,
+                "mutation_priority": "low"
+            }
+        ],
+        "mutation_actions": [
+            {
+                "name": "insert",
+                "description": "Insert random bytes into field",
+                "complexity": "low",
+                "effectiveness": 0.7
+            },
+            {
+                "name": "delete", 
+                "description": "Remove bytes from field",
+                "complexity": "low",
+                "effectiveness": 0.6
+            },
+            {
+                "name": "flip",
+                "description": "Flip random bits in field",
+                "complexity": "medium",
+                "effectiveness": 0.8
+            },
+            {
+                "name": "replace",
+                "description": "Replace field with random data",
+                "complexity": "medium", 
+                "effectiveness": 0.9
+            },
+            {
+                "name": "shuffle",
+                "description": "Randomly reorder bytes in field",
+                "complexity": "medium",
+                "effectiveness": 0.5
+            },
+            {
+                "name": "copy",
+                "description": "Duplicate field content",
+                "complexity": "low",
+                "effectiveness": 0.4
+            }
+        ],
+        "mamba_feature_dim": 256,
+        "mutation_context_dim": 16,
+        "use_mamba_features": true,
+        "dataset_path": "../datasets/protocol_samples.pkl",
+        "exploit_probability": 0.9
+    },
+    "reward_config": {
+        "base_reward_weight": 1.0,
+        "medium_reward_weight": 5.0,
+        "high_reward_weight": 100.0,
+        "coverage_reward_coeff": 0.1,
+        "novelty_reward_coeff": 0.2,
+        "retention_reward_coeff": 0.05,
+        "crash_reward": 10.0,
+        "timeout_reward": 5.0,
+        "anomaly_reward": 3.0,
+        "vulnerability_reward": 1000.0,
+        "duplicate_penalty": -0.1,
+        "invalid_mutation_penalty": -1.0,
+        "reward_history_length": 1000,
+        "novelty_threshold": 0.8
+    },
+    "nn_fuzzing": {
+        "n_h_decoder": 128,
+        "n_h1": 128,
+        "n_h2": 64,
+        "n_h1_low": 64,
+        "n_h2_low": 32,
+        "n_h_mixer": 64,
+        "mamba_processor_h1": 128,
+        "mamba_processor_h2": 64,
+        "field_attention_dim": 32,
+        "mutation_context_dim": 16
+    },
+    "env": {
+        "max_steps": 1000,
+        "protocol_fields": [
+            {
+                "name": "header",
+                "type": "bytes",
+                "min_length": 1,
+                "max_length": 64
+            },
+            {
+                "name": "payload", 
+                "type": "bytes",
+                "min_length": 0,
+                "max_length": 1500
+            },
+            {
+                "name": "length_field",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 65535
+            },
+            {
+                "name": "type_field",
+                "type": "integer", 
+                "min_value": 0,
+                "max_value": 255
+            },
+            {
+                "name": "flags",
+                "type": "bitfield",
+                "num_bits": 8
+            },
+            {
+                "name": "checksum",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 4294967295
+            },
+            {
+                "name": "sequence_number",
+                "type": "integer",
+                "min_value": 0,
+                "max_value": 4294967295
+            },
+            {
+                "name": "options",
+                "type": "bytes",
+                "min_length": 0,
+                "max_length": 40
+            }
+        ],
+        "mamba_feature_dim": 256,
+        "use_mamba_features": true,
+        "exploit_probability": 0.9,
+        "base_reward_weight": 1.0,
+        "medium_reward_weight": 5.0,
+        "high_reward_weight": 100.0,
+        "coverage_reward_coeff": 0.1,
+        "novelty_reward_coeff": 0.2,
+        "retention_reward_coeff": 0.05,
+        "crash_reward": 10.0,
+        "timeout_reward": 5.0,
+        "anomaly_reward": 3.0,
+        "vulnerability_reward": 1000.0,
+        "duplicate_penalty": -0.1,
+        "invalid_mutation_penalty": -1.0,
+        "reward_history_length": 1000,
+        "novelty_threshold": 0.8,
+        "dataset_path": "../datasets/protocol_samples.pkl"
+    },
+    "evaluation": {
+        "coverage_target": 0.8,
+        "crash_discovery_target": 0.05,
+        "vulnerability_discovery_target": 0.001,
+        "mutation_efficiency_target": 0.1,
+        "field_exploration_balance": 0.7,
+        "evaluation_episodes": 10,
+        "evaluation_steps": 500
+    },
+    "logging": {
+        "log_level": "INFO",
+        "log_rewards": true,
+        "log_field_selections": true,
+        "log_mutation_actions": true,
+        "log_coverage": true,
+        "log_vulnerabilities": true,
+        "reward_log_frequency": 10,
+        "model_save_frequency": 1000,
+        "summary_frequency": 100
+    },
+    "dataset": {
+        "default_dataset_size": 1000,
+        "packet_generation_strategy": "diverse",
+        "field_variation_probability": 0.3,
+        "size_variation_range": [0.5, 2.0],
+        "synthetic_packet_ratio": 0.2,
+        "real_packet_ratio": 0.8
+    },
+    "performance": {
+        "parallel_mutations": 1,
+        "batch_processing": true,
+        "feature_cache_size": 10000,
+        "packet_cache_size": 5000,
+        "memory_limit_mb": 2048,
+        "timeout_per_mutation": 5.0
+    }
+}
