@@ -92,5 +92,38 @@
 	"init_exp_div" : 10000,
 	"activate_role_reward" : false,
 	"role_reward_param_file" : null
+    },
+    "fuzzing" : {
+	"protocol_fields" : ["header", "source_addr", "dest_addr", "payload", "checksum", "flags", "sequence_num", "timestamp"],
+	"mutation_actions" : ["insert", "delete", "flip", "replace", "shuffle", "copy"],
+	"field_selection_reward_ratio" : 0.9,
+	"max_mutation_size" : 1024,
+	"mutation_history_length" : 10,
+	"max_episode_steps" : 1000,
+	"mamba_feature_dim" : 256,
+	"field_context_dim" : 32,
+	"coverage_feature_dim" : 64,
+	"dataset_path" : null,
+	"protocol_type" : "generic"
+    },
+    "rewards" : {
+	"base_reward_weight" : 1.0,
+	"medium_reward_weight" : 5.0,
+	"high_reward_weight" : 100.0,
+	"coverage_weight" : 1.0,
+	"novelty_weight" : 0.5,
+	"uniqueness_weight" : 0.3,
+	"crash_weight" : 1.0,
+	"timeout_weight" : 0.8,
+	"anomaly_weight" : 0.6,
+	"vulnerability_weight" : 1.0
+    },
+    "nn_fuzzing_hsd" : {
+	"n_h_decoder" : 128,
+	"n_h1_low" : 64,
+	"n_h2_low" : 64,
+	"n_h1" : 128,
+	"n_h2" : 128,
+	"n_h_mixer" : 64
     }
 }
