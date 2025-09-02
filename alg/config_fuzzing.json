@@ -1,0 +1,198 @@
+{
+    "main": {
+        "N_seeds": 5,
+        "seed": 12341,
+        "dir_name": "fuzzing_hsd",
+        "dir_idx_start": 1,
+        "model_name": "model.ckpt",
+        "render": false,
+        "summarize": true,
+        "alg_name": "fuzzing_hsd",
+        "save_period": 10000,
+        "max_to_keep": 100,
+        "save_threshold": 0.7,
+        "N_test": 100,
+        "test_filename": "fuzzing_test.csv",
+        "measure": true
+    },
+    "alg": {
+        "N_train": 100000,
+        "N_eval": 50,
+        "period": 200,
+        "epsilon_start": 0.5,
+        "epsilon_end": 0.05,
+        "epsilon_div": 20000,
+        "buffer_size": 100000,
+        "lr_Q": 0.0001,
+        "lr_actor": 0.0001,
+        "lr_V": 0.0001,
+        "lr_decoder": 0.0001,
+        "gamma": 0.99,
+        "tau": 0.01,
+        "batch_size": 256,
+        "pretrain_episodes": 20,
+        "steps_per_train": 10
+    },
+    "fuzzing_params": {
+        "protocol_fields": [
+            {"name": "header", "type": "header"},
+            {"name": "source_addr", "type": "address"},
+            {"name": "dest_addr", "type": "address"}, 
+            {"name": "length", "type": "length"},
+            {"name": "checksum", "type": "checksum"},
+            {"name": "flags", "type": "flag"},
+            {"name": "payload", "type": "payload"},
+            {"name": "data", "type": "data"}
+        ],
+        "mutation_actions": ["insert", "delete", "flip", "replace", "shuffle", "copy"],
+        "field_selection_steps": 10,
+        "exploit_ratio": 0.9,
+        "explore_ratio": 0.1,
+        "mamba_feature_dim": 256,
+        "use_mamba_features": true,
+        "max_field_length": 1024,
+        "supported_protocols": ["tcp", "udp", "http", "custom"],
+        "traj_skip": 2,
+        "use_state_difference": true,
+        "obs_truncate_length": null,
+        "low_level_alg": "iql",
+        "field_curriculum_threshold": 0.85,
+        "mutation_curriculum_threshold": 0.80
+    },
+    "reward_params": {
+        "base_reward_weight": 1.0,
+        "medium_reward_weight": 5.0,
+        "high_reward_weight": 100.0,
+        "coverage_reward_scale": 10.0,
+        "novelty_reward_scale": 5.0,
+        "retention_reward_scale": 2.0,
+        "crash_reward": 20.0,
+        "timeout_reward": 15.0,
+        "protocol_error_reward": 10.0,
+        "vulnerability_reward": 1000.0,
+        "reward_normalization": true,
+        "max_reward_magnitude": 100.0
+    },
+    "env": {
+        "max_steps": 1000,
+        "dataset_path": "data/protocol_packets.json",
+        "output_dir": "results/fuzzing_output",
+        "coverage_tracking": true,
+        "crash_detection": true,
+        "vulnerability_detection": true,
+        "timeout_threshold": 10.0,
+        "memory_limit_mb": 1024,
+        "parallel_executions": 1,
+        "save_interesting_packets": true,
+        "packet_diversity_threshold": 0.1
+    },
+    "mamba_config": {
+        "model_path": "models/mamba_extractor.pkl",
+        "feature_dim": 256,
+        "sequence_length": 512,
+        "use_pretrained": true,
+        "fine_tune": false,
+        "normalization": "batch_norm",
+        "dropout_rate": 0.1
+    },
+    "nn_fuzzing_hsd": {
+        "n_h_decoder": 128,
+        "n_h1_low": 64,
+        "n_h2_low": 64,
+        "n_h1": 128,
+        "n_h2": 128,
+        "n_h_mixer": 64,
+        "field_feature_dim": 16,
+        "protocol_feature_dim": 64,
+        "context_feature_dim": 16,
+        "attention_dim": 32,
+        "dropout_rate": 0.1
+    },
+    "training": {
+        "field_selection_curriculum": {
+            "start_fields": 3,
+            "max_fields": 8,
+            "increase_threshold": 0.85,
+            "increase_step": 1
+        },
+        "mutation_curriculum": {
+            "start_mutations": 3,
+            "max_mutations": 6,
+            "increase_threshold": 0.80,
+            "increase_step": 1
+        },
+        "reward_shaping": {
+            "coverage_weight_start": 0.8,
+            "coverage_weight_end": 0.4,
+            "intrinsic_weight_start": 0.2,
+            "intrinsic_weight_end": 0.6,
+            "weight_decay_steps": 50000
+        },
+        "exploration_schedule": {
+            "field_epsilon_start": 0.3,
+            "field_epsilon_end": 0.05,
+            "field_epsilon_decay": 30000,
+            "mutation_epsilon_start": 0.5,
+            "mutation_epsilon_end": 0.1,
+            "mutation_epsilon_decay": 40000
+        }
+    },
+    "evaluation": {
+        "eval_episodes": 50,
+        "eval_frequency": 200,
+        "metrics": [
+            "coverage_increase",
+            "crash_rate",
+            "vulnerability_discovery_rate",
+            "packet_diversity",
+            "execution_time",
+            "memory_usage"
+        ],
+        "baseline_comparison": true,
+        "save_eval_packets": true,
+        "detailed_logging": true
+    },
+    "logging": {
+        "log_level": "INFO",
+        "log_frequency": 100,
+        "save_trajectories": true,
+        "save_field_importance": true,
+        "save_mutation_history": true,
+        "tensorboard_logging": true,
+        "wandb_logging": false,
+        "wandb_project": "fuzzing-hsd"
+    },
+    "data_processing": {
+        "dataset_shuffle": true,
+        "data_augmentation": true,
+        "protocol_normalization": true,
+        "field_encoding": "one_hot",
+        "sequence_padding": true,
+        "max_sequence_length": 512,
+        "min_sequence_length": 32,
+        "validation_split": 0.1
+    },
+    "optimization": {
+        "gradient_clipping": true,
+        "max_grad_norm": 1.0,
+        "weight_decay": 0.0001,
+        "learning_rate_schedule": {
+            "type": "exponential_decay",
+            "decay_rate": 0.95,
+            "decay_steps": 10000
+        },
+        "early_stopping": {
+            "patience": 50000,
+            "min_delta": 0.001,
+            "metric": "vulnerability_discovery_rate"
+        }
+    },
+    "safety": {
+        "max_execution_time": 3600,
+        "memory_monitoring": true,
+        "crash_isolation": true,
+        "backup_frequency": 10000,
+        "error_recovery": true,
+        "timeout_handling": "graceful"
+    }
+}
